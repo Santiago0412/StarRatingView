@@ -55,8 +55,7 @@
 - (void)buildDataAndUI {
     _scorePercent = 1;//默认为1
     _hasAnimation = NO;//默认为NO
-    _allowIncompleteStar = NO;//默认为NO
-
+    _starType = StarTypeIncomplete;
     self.foregroundStarView = [self createStarViewWithImage:FOREGROUND_STAR_IMAGE_NAME];
     self.backgroundStarView = [self createStarViewWithImage:BACKGROUND_STAR_IMAGE_NAME];
     
@@ -72,7 +71,21 @@
     CGPoint tapPoint = [gesture locationInView:self];
     CGFloat offset = tapPoint.x;
     CGFloat realStarScore = offset / (self.bounds.size.width / self.numberOfStars);
-    CGFloat starScore = self.allowIncompleteStar ? realStarScore : ceilf(realStarScore);
+    CGFloat starScore;
+    
+    switch (_starType) {
+        case StarTypeIncomplete:
+            starScore = realStarScore;
+            break;
+        case StarTypeHalf:
+            starScore = ceilf(realStarScore*2)/2;
+            break;
+        case StarTypeComplete:
+            starScore = ceilf(realStarScore);
+            break;
+        default:
+            break;
+    }
     self.scorePercent = starScore / self.numberOfStars;
 }
 
@@ -95,7 +108,7 @@
     __weak CWStarRateView *weakSelf = self;
     CGFloat animationTimeInterval = self.hasAnimation ? ANIMATION_TIME_INTERVAL : 0;
     [UIView animateWithDuration:animationTimeInterval animations:^{
-       weakSelf.foregroundStarView.frame = CGRectMake(0, 0, weakSelf.bounds.size.width * weakSelf.scorePercent, weakSelf.bounds.size.height);
+        weakSelf.foregroundStarView.frame = CGRectMake(0, 0, weakSelf.bounds.size.width * weakSelf.scorePercent, weakSelf.bounds.size.height);
     }];
 }
 
@@ -122,3 +135,4 @@
 }
 
 @end
+
